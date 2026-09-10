@@ -12,47 +12,42 @@ permissions:
   contents: read
 
 jobs:
-  blender-smoke-test:
+  koharu-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Install headless graphics runtime
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends libegl1 libgl1-mesa-dri libgbm1
-
       - name: Download Blender 5.2.1 LTS
-        shell: bash
         run: |
           set -euo pipefail
-          URL='https://download.blender.org/release/Blender5.2/blender-5.2.1-linux-x64.tar.xz'
-          curl --fail --location --retry 4 --retry-delay 3 "$URL" -o /tmp/blender.tar.xz
+          curl --fail --location --retry 4 'https://download.blender.org/release/Blender5.2/blender-5.2.1-linux-x64.tar.xz' -o /tmp/blender.tar.xz
           mkdir -p /tmp/blender
           tar -xJf /tmp/blender.tar.xz -C /tmp/blender --strip-components=1
-          /tmp/blender/blender --version | tee /tmp/blender-version.txt
-
-      - name: Run Blender headless verification
+          /tmp/blender/blender --version | head -1
+      - name: Build Koharu prototype
         env:
           BLENDER_OUT: /tmp/blender-out
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: |
           set -euo pipefail
           mkdir -p "$BLENDER_OUT"
-          /tmp/blender/blender --background --factory-startup --python cloud_blender/smoke_test.py
-          cp /tmp/blender-version.txt "$BLENDER_OUT/blender-version.txt"
-          test -s "$BLENDER_OUT/cloud_blender_smoke.blend"
-          test -s "$BLENDER_OUT/cloud_blender_smoke.glb"
-          test -s "$BLENDER_OUT/smoke_render.png"
-          grep -q 'SmokeTest=PASS' "$BLENDER_OUT/verification.txt"
-          ls -lah "$BLENDER_OUT"
-
-      - name: Upload verification output
+          /tmp/blender/blender --background --factory-startup --python cloud_blender/koharu_build.py
+          test -s "$BLENDER_OUT/koharu_prototype.blend"
+          test -s "$BLENDER_OUT/koharu_prototype.glb"
+          test -s "$BLENDER_OUT/koharu_front.png"
+          test -s "$BLENDER_OUT/koharu_side.png"
+          test -s "$BLENDER_OUT/koharu_back.png"
+          test -s "$BLENDER_OUT/koharu_validation.json"
+          cat "$BLENDER_OUT/koharu_validation.json"
+      - name: Upload Koharu build
         uses: actions/upload-artifact@v4
         with:
-          name: blender-5.2.1-smoke-output
+          name: koharu-automated-prototype
           path: /tmp/blender-out/
           retention-days: 1
           if-no-files-found: error
