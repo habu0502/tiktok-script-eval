@@ -64,7 +64,7 @@ point_at(fill)
 
 # Render setup.
 scene = bpy.context.scene
-scene.render.engine = "BLENDER_EEVEE_NEXT"
+scene.render.engine = "BLENDER_EEVEE"
 scene.render.resolution_x = 320
 scene.render.resolution_y = 320
 scene.render.resolution_percentage = 100
