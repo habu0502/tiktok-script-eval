@@ -1,0 +1,52 @@
+name: Cloud Blender 5.2.1
+
+on:
+  push:
+    branches: [cloud-blender-env]
+    paths:
+      - '.github/workflows/cloud-blender.yml'
+      - 'cloud_blender/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  blender-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Blender 5.2.1 LTS
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://download.blender.org/release/Blender5.2/blender-5.2.1-linux-x64.tar.xz'
+          curl --fail --location --retry 4 --retry-delay 3 "$URL" -o /tmp/blender.tar.xz
+          mkdir -p /tmp/blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/blender --strip-components=1
+          /tmp/blender/blender --version | tee /tmp/blender-version.txt
+
+      - name: Run Blender headless verification
+        env:
+          BLENDER_OUT: /tmp/blender-out
+        run: |
+          set -euo pipefail
+          mkdir -p "$BLENDER_OUT"
+          /tmp/blender/blender --background --factory-startup --python cloud_blender/smoke_test.py
+          cp /tmp/blender-version.txt "$BLENDER_OUT/blender-version.txt"
+          test -s "$BLENDER_OUT/cloud_blender_smoke.blend"
+          test -s "$BLENDER_OUT/cloud_blender_smoke.glb"
+          test -s "$BLENDER_OUT/smoke_render.png"
+          grep -q 'SmokeTest=PASS' "$BLENDER_OUT/verification.txt"
+          ls -lah "$BLENDER_OUT"
+
+      - name: Upload verification output
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-5.2.1-smoke-output
+          path: /tmp/blender-out/
+          retention-days: 1
+          if-no-files-found: error
