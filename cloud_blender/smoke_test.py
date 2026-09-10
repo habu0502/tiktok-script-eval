@@ -1,3 +1,4 @@
+# Cloud Blender 5.2.1 verification script.
 import bpy
 import math
 import os
