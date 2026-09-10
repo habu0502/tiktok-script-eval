@@ -1,0 +1,29 @@
+name: Face topology reference retrieval
+on:
+  push:
+    branches: [cloud-blender-env]
+    paths: ['.github/workflows/face-topology-reference.yml']
+permissions:
+  contents: read
+jobs:
+  reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Download and verify official CC0 base asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/face-reference
+          curl --fail --location --max-time 45 --retry 1 https://raw.githubusercontent.com/makehumancommunity/makehuman/master/makehuman/data/3dobjs/base.obj -o /tmp/face-reference/base.obj
+          test "$(git hash-object /tmp/face-reference/base.obj)" = 'd26635e9326e3cca30778fd7b9c00062b03cce09'
+          test "$(stat -c%s /tmp/face-reference/base.obj)" -lt 5000000
+          head -15 /tmp/face-reference/base.obj > /tmp/face-reference/SOURCE_LICENSE.txt
+          sha256sum /tmp/face-reference/base.obj > /tmp/face-reference/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: face-topology-reference-cc0
+          path: /tmp/face-reference/
+          retention-days: 1
+          compression-level: 9
+          if-no-files-found: error
