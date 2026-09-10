@@ -1,29 +1,19 @@
-name: Portable Blender runtime
+name: Portable Blender runtime transfer cleanup
 on:
   push:
     branches: [cloud-blender-env]
     paths: ['.github/workflows/blender-portable-runtime.yml']
 permissions:
   contents: read
+  actions: write
 jobs:
-  prepare:
+  cleanup:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 2
     steps:
-      - name: Fetch official runtime only
-        shell: bash
+      - name: Delete this task's transferred runtime artifact only
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p /tmp/blender-runtime
-          cd /tmp/blender-runtime
-          curl -fL --retry 2 https://download.blender.org/release/Blender5.2/blender-5.2.1-linux-x64.tar.xz -o blender-5.2.1-linux-x64.tar.xz
-          curl -fL --retry 2 https://download.blender.org/release/Blender5.2/blender-5.2.1.sha256 -o official.sha256
-          grep 'blender-5.2.1-linux-x64.tar.xz' official.sha256 | sha256sum -c -
-          test "$(stat -c %s blender-5.2.1-linux-x64.tar.xz)" -lt 419430400
-      - uses: actions/upload-artifact@v4
-        with:
-          name: blender-portable-runtime-transfer
-          path: /tmp/blender-runtime/
-          compression-level: 0
-          retention-days: 1
-          if-no-files-found: error
+          gh api --method DELETE repos/habu0502/tiktok-script-eval/actions/artifacts/10136576691
