@@ -1,4 +1,4 @@
-name: Portable Blender runtime transfer cleanup
+name: Portable Blender chunked runtime
 on:
   push:
     branches: [cloud-blender-env]
@@ -7,13 +7,70 @@ permissions:
   contents: read
   actions: write
 jobs:
-  cleanup:
+  prepare:
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 10
     steps:
-      - name: Delete this task's transferred runtime artifact only
+      - name: Remove only the failed transfer from this task
         env:
           GH_TOKEN: ${{ github.token }}
+        run: gh api --method DELETE repos/habu0502/tiktok-script-eval/actions/artifacts/10137362277
+      - name: Fetch and checksum public official runtime
+        shell: bash
         run: |
           set -euo pipefail
-          gh api --method DELETE repos/habu0502/tiktok-script-eval/actions/artifacts/10136576691
+          mkdir -p /tmp/parts
+          curl -fL --retry 3 'https://download.blender.org/release/Blender5.2/blender-5.2.1-linux-x64.tar.xz' -o /tmp/blender.tar.xz
+          sha256sum /tmp/blender.tar.xz | tee /tmp/parts/SHA256.txt
+          split -b 48M -d /tmp/blender.tar.xz /tmp/parts/blender.part.
+          ls -lh /tmp/parts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-00
+          path: |
+            /tmp/parts/blender.part.00
+            /tmp/parts/SHA256.txt
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-01
+          path: /tmp/parts/blender.part.01
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-02
+          path: /tmp/parts/blender.part.02
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-03
+          path: /tmp/parts/blender.part.03
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-04
+          path: /tmp/parts/blender.part.04
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-05
+          path: /tmp/parts/blender.part.05
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-06
+          path: /tmp/parts/blender.part.06
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-part-07
+          path: /tmp/parts/blender.part.07
+          compression-level: 0
+          retention-days: 1
