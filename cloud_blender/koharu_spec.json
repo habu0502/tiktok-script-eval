@@ -1,0 +1,37 @@
+{
+  "project": "Shirase Koharu 3D",
+  "character": "白瀬コハル / Shirase Koharu",
+  "version": "1.0-frozen",
+  "goal": "game-ready stylized anime character, automated/free pipeline",
+  "design_lock": {
+    "hair": "silver-white short layered bob, soft volume, long side fringe, star hairpin",
+    "eyes": "bright cyan/teal blue, gentle slightly drooping anime eyes",
+    "palette": ["white", "teal-cyan", "black", "antique gold"],
+    "silhouette": "slender stylized 7.5-8 head proportion, short bob, layered translucent long cape panels",
+    "top": "white high-neck knit-like inner top with black harness and gold star hardware",
+    "bottom": "black short pleated/skort silhouette with black tights",
+    "boots": "black-white futuristic ankle boots with teal accents",
+    "cape": "white translucent layered cape with teal lining and star motifs",
+    "utility": "small medical/utility pouch with teal cross motif",
+    "companion": "small white spherical hovering drone with black face display, cyan light, ear/wing fins and gold star charm"
+  },
+  "production": {
+    "unit": "meter",
+    "target_height_m": 1.67,
+    "rest_pose": "A-pose",
+    "separate_parts": ["body", "face", "eyes", "hair_front", "hair_back", "top", "harness", "bottom", "tights", "boots", "cape", "belts", "pouch", "star_accessories", "drone"],
+    "formats": ["blend", "glb"],
+    "lod_tri_targets": [70000, 35000, 18000, 9000],
+    "materials_max": 18,
+    "texture_authoring": "2K-4K; game export 2K where possible"
+  },
+  "gates": {
+    "G0": "reference/spec frozen",
+    "G1": "front-side-back proportions internally consistent",
+    "G2": "static silhouette recognizable",
+    "G3": "face identity acceptable at front and 45 degrees",
+    "G4": "rig deformation passes shoulders elbows hips knees",
+    "G5": "blend and glb export reopen without missing data",
+    "G6": "final turntable and validation report pass"
+  }
+}
