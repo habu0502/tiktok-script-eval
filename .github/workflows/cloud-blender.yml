@@ -19,6 +19,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install headless graphics runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libegl1 libgl1-mesa-dri libgbm1
+
       - name: Download Blender 5.2.1 LTS
         shell: bash
         run: |
@@ -32,6 +37,7 @@ jobs:
       - name: Run Blender headless verification
         env:
           BLENDER_OUT: /tmp/blender-out
+          LIBGL_ALWAYS_SOFTWARE: '1'
         run: |
           set -euo pipefail
           mkdir -p "$BLENDER_OUT"
