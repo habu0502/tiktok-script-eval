@@ -1,21 +1,68 @@
-name: Portable Blender transfer cleanup
+name: Blender runtime transfer parts
 on:
   push:
     branches: [cloud-blender-env]
     paths: ['.github/workflows/blender-portable-runtime.yml']
 permissions:
   contents: read
-  actions: write
 jobs:
-  cleanup:
+  prepare:
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 5
     steps:
-      - name: Remove only this task's retrieved temporary runtime parts
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Download official runtime and split
         run: |
           set -euo pipefail
-          for id in 10137505194 10137506091 10137507021 10137508168 10137509039 10137509939 10137510843 10137511710; do
-            gh api --method DELETE "repos/habu0502/tiktok-script-eval/actions/artifacts/$id"
-          done
+          mkdir -p /tmp/runtime
+          curl -fL --retry 2 https://download.blender.org/release/Blender5.2/blender-5.2.1-linux-x64.tar.xz -o /tmp/runtime.tar.xz
+          test $(stat -c%s /tmp/runtime.tar.xz) -lt 402653184
+          sha256sum /tmp/runtime.tar.xz | tee /tmp/runtime/sha256.txt
+          split -b 48M -d /tmp/runtime.tar.xz /tmp/runtime/part.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-00
+          path: /tmp/runtime/part.00
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-01
+          path: /tmp/runtime/part.01
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-02
+          path: /tmp/runtime/part.02
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-03
+          path: /tmp/runtime/part.03
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-04
+          path: /tmp/runtime/part.04
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-05
+          path: /tmp/runtime/part.05
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-06
+          path: /tmp/runtime/part.06
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-recover-07
+          path: /tmp/runtime/part.07
+          compression-level: 0
+          retention-days: 1
